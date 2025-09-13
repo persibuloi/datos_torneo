@@ -1,0 +1,16 @@
+[build]
+  command = "pip install -r requirements.txt"
+  publish = "."
+
+[build.environment]
+  PYTHON_VERSION = "3.9"
+
+[[redirects]]
+  from = "/*"
+  to = "/streamlit_app.py"
+  status = 200
+  force = true
+
+[context.production.environment]
+  STREAMLIT_SERVER_PORT = "8501"
+  STREAMLIT_SERVER_HEADLESS = "true"
