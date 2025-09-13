@@ -39,37 +39,47 @@ st.markdown(
     
     /* Responsive design para móviles */
     @media (max-width: 768px) {
-        .block-container {padding: 0.3rem !important; max-width: 100% !important;}
-        h1 {font-size: 1.1rem !important; text-align: center; margin-bottom: 0.5rem !important;}
-        h2 {font-size: 1rem !important; margin: 0.5rem 0 !important;}
-        h3 {font-size: 0.9rem !important;}
-        .stMetric > div {font-size: 0.7rem !important;}
-        .stMetric label {font-size: 0.7rem !important;}
-        .stSelectbox > div > div {font-size: 0.8rem !important;}
-        .stSlider > div {font-size: 0.8rem !important;}
-        .stCheckbox > div {font-size: 0.8rem !important;}
+        .block-container {padding: 0.2rem !important; max-width: 100% !important;}
+        h1 {font-size: 1rem !important; text-align: center; margin-bottom: 0.3rem !important;}
+        h2 {font-size: 0.9rem !important; margin: 0.3rem 0 !important;}
+        h3 {font-size: 0.8rem !important;}
+        /* Métricas ultra compactas */
+        .stMetric {margin-bottom: 0.2rem !important;}
+        .stMetric > div {font-size: 0.6rem !important; line-height: 1.1 !important;}
+        .stMetric label {font-size: 0.6rem !important; margin-bottom: 0.1rem !important;}
+        .stMetric [data-testid="metric-container"] {padding: 0.2rem !important; background: #f8f9fa; border-radius: 4px; border: 1px solid #e9ecef;}
+        .stMetric [data-testid="metric-container"] > div {margin: 0 !important;}
+        /* Controles más pequeños */
+        .stSelectbox > div > div {font-size: 0.7rem !important;}
+        .stSlider > div {font-size: 0.7rem !important;}
+        .stCheckbox > div {font-size: 0.7rem !important;}
+        .stRadio > div {font-size: 0.7rem !important;}
         /* Gráficos ultra compactos */
-        .js-plotly-plot {height: 200px !important; width: 100% !important;}
-        .plotly-graph-div {height: 200px !important;}
+        .js-plotly-plot {height: 180px !important; width: 100% !important;}
+        .plotly-graph-div {height: 180px !important;}
         /* Columnas más estrechas */
-        .css-1r6slb0 {padding: 0.1rem !important;}
-        .css-12oz5g7 {padding: 0.1rem !important;}
+        .css-1r6slb0 {padding: 0.05rem !important;}
+        .css-12oz5g7 {padding: 0.05rem !important;}
         /* Tablas compactas */
-        .stDataFrame table {font-size: 0.7rem !important;}
-        .stDataFrame {max-height: 200px !important;}
+        .stDataFrame table {font-size: 0.6rem !important;}
+        .stDataFrame {max-height: 150px !important;}
         /* Sidebar ultra compacto */
-        .css-1d391kg {padding: 0.5rem 0.3rem !important;}
+        .css-1d391kg {padding: 0.3rem 0.2rem !important;}
         /* Botones y controles más pequeños */
-        .stButton button {font-size: 0.8rem !important; padding: 0.2rem 0.5rem !important;}
+        .stButton button {font-size: 0.7rem !important; padding: 0.15rem 0.3rem !important;}
         /* Separadores más pequeños */
-        hr {margin: 0.5rem 0 !important;}
+        hr {margin: 0.3rem 0 !important;}
         /* Contenedores de gráficos forzados */
-        .element-container div[data-testid="stPlotlyChart"] {height: 200px !important; margin: 0.2rem 0 !important;}
-        .element-container div[data-testid="stPlotlyChart"] > div {height: 200px !important;}
+        .element-container div[data-testid="stPlotlyChart"] {height: 180px !important; margin: 0.1rem 0 !important;}
+        .element-container div[data-testid="stPlotlyChart"] > div {height: 180px !important;}
         /* Expanders más compactos */
-        .streamlit-expanderHeader {font-size: 0.8rem !important;}
-        /* Métricas en una sola línea */
-        .metric-container {display: flex !important; flex-direction: column !important;}
+        .streamlit-expanderHeader {font-size: 0.7rem !important; padding: 0.2rem !important;}
+        /* Texto general más pequeño */
+        p, div, span {font-size: 0.7rem !important; line-height: 1.2 !important;}
+        /* Captions más pequeñas */
+        .stCaption {font-size: 0.6rem !important;}
+        /* Info boxes más compactas */
+        .stInfo {font-size: 0.7rem !important; padding: 0.3rem !important;}
     }
     
     /* Tablets */
@@ -126,10 +136,13 @@ def guess_columns(columns: List[str]) -> Dict[str, Optional[str]]:
     return guessed
 
 
-def kpi_card(label: str, value, help_text: Optional[str] = None, cols=None):
-    c = cols if cols is not None else st.columns(1)[0]
-    with c:
-        st.metric(label, value, help=help_text)
+def kpi_card(title: str, value: str, cols):
+    with cols:
+        if st.session_state.get('mobile_view', False):
+            # Vista móvil: formato más compacto
+            st.markdown(f"**{title}**: {value}")
+        else:
+            st.metric(title, value)
 
 
 def _sparkline_from_series(s: pd.Series, title: str, color: str = "#2563eb"):
@@ -142,8 +155,8 @@ def _sparkline_from_series(s: pd.Series, title: str, color: str = "#2563eb"):
         fig.update_traces(line=dict(color=color, width=2), hovertemplate="%{y:.2f}<extra></extra>")
         fig.update_layout(
             title=title,
-            height=150 if st.session_state.get('mobile_view', False) else 300,
-            margin=dict(l=5, r=5, t=20, b=5),
+            height=120 if st.session_state.get('mobile_view', False) else 300,
+            margin=dict(l=2, r=2, t=15, b=2),
             xaxis=dict(visible=False),
             yaxis=dict(visible=False),
         )
@@ -715,8 +728,8 @@ def main():
             color_continuous_scale=scale,
             text_auto=True,
         )
-        mobile_height = 200 if st.session_state.get('mobile_view', False) else 400
-        fig.update_layout(xaxis_title=rank_dimension.title(), yaxis_title=label, height=mobile_height, margin=dict(l=5,r=5,t=30,b=5))
+        mobile_height = 180 if st.session_state.get('mobile_view', False) else 400
+        fig.update_layout(xaxis_title=rank_dimension.title(), yaxis_title=label, height=mobile_height, margin=dict(l=3,r=3,t=20,b=3))
         fig.update_traces(hovertemplate="<b>%{x}</b><br>Valor: %{y:.2f}<extra></extra>", texttemplate="%{y:.2f}")
         fig.update_traces(textposition="outside")
         st.plotly_chart(fig)
@@ -751,8 +764,8 @@ def main():
             title=f"Promedio por Jornada ({'Score+HCP' if metric_col==col_pines_hcp else 'Score'})",
             color_discrete_sequence=COLORWAY,
         )
-        mobile_height = 200 if st.session_state.get('mobile_view', False) else 400
-        fig2.update_layout(xaxis_title="Jornada", yaxis_title="Promedio", height=mobile_height, margin=dict(l=5,r=5,t=30,b=5))
+        mobile_height = 180 if st.session_state.get('mobile_view', False) else 400
+        fig2.update_layout(xaxis_title="Jornada", yaxis_title="Promedio", height=mobile_height, margin=dict(l=3,r=3,t=20,b=3))
         fig2.update_traces(hovertemplate="Jornada %{x}<br>Promedio: %{y:.2f}<br>%{fullData.name}<extra></extra>")
         st.plotly_chart(fig2)
         with st.expander("Ver datos de tendencia", expanded=False):
@@ -876,8 +889,8 @@ def main():
                             markers=True,
                             color_discrete_sequence=COLORWAY[:2]
                         )
-                        mobile_height = 200 if st.session_state.get('mobile_view', False) else 400
-                        fig_comp.update_layout(xaxis_title="Jornada", yaxis_title=f"Promedio ({comp_metric_name})", height=mobile_height, margin=dict(l=5,r=5,t=30,b=5))
+                        mobile_height = 180 if st.session_state.get('mobile_view', False) else 400
+                        fig_comp.update_layout(xaxis_title="Jornada", yaxis_title=f"Promedio ({comp_metric_name})", height=mobile_height, margin=dict(l=3,r=3,t=20,b=3))
                         st.plotly_chart(fig_comp)
         else:
             st.info("Se necesitan al menos 2 jugadores para comparar")
