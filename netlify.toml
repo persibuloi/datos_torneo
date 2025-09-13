@@ -1,12 +1,6 @@
 [build]
-  command = "pip install -r requirements.txt && streamlit run streamlit_app.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true"
+  command = "pip install -r requirements.txt"
   publish = "."
 
 [build.environment]
   PYTHON_VERSION = "3.9"
-
-[[redirects]]
-  from = "/*"
-  to = "/"
-  status = 200
-  force = true
