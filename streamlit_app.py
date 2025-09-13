@@ -496,7 +496,7 @@ def main():
         c1, c2, c3, c4 = st.columns(4)
 
     total_rows = len(filtered)
-    kpi_card("Registros", f"{total_rows:,}", "Filas después de filtros", c1)
+    kpi_card("Registros", f"{total_rows:,}", cols=c1)
 
     if col_puntos and col_puntos in filtered.columns:
         puntos_total = pd.to_numeric(filtered[col_puntos], errors='coerce').fillna(0).sum()
@@ -516,8 +516,10 @@ def main():
         pines_hcp_series = tmp_h[col_score] + tmp_h[col_handicap]
         col_pines_hcp = "__PINES_HCP__"
         filtered[col_pines_hcp] = pines_hcp_series
-        kpi_card("Promedio con handicap", f"{pines_hcp_series.mean():,.2f}")
-        kpi_card("Mejor con handicap", f"{pines_hcp_series.max():,.2f}")
+        # Mostrar métricas de handicap en columnas disponibles
+        h_cols = st.columns(2)
+        kpi_card("Promedio con handicap", f"{pines_hcp_series.mean():,.2f}", cols=h_cols[0])
+        kpi_card("Mejor con handicap", f"{pines_hcp_series.max():,.2f}", cols=h_cols[1])
         # Toggle solo si existe handicap
         with st.sidebar:
             use_hcp = st.toggle("Usar Handicap (global)", value=False, help="Aplica Handicap a estadísticas, rankings y tendencias por jugador/equipo.")
