@@ -1,5 +1,5 @@
 [build]
-  command = "pip install -r requirements.txt"
+  command = "pip install -r requirements.txt && streamlit run streamlit_app.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true"
   publish = "."
 
 [build.environment]
@@ -7,10 +7,6 @@
 
 [[redirects]]
   from = "/*"
-  to = "/streamlit_app.py"
+  to = "/"
   status = 200
   force = true
-
-[context.production.environment]
-  STREAMLIT_SERVER_PORT = "8501"
-  STREAMLIT_SERVER_HEADLESS = "true"
