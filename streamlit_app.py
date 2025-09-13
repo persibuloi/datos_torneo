@@ -46,13 +46,17 @@ st.markdown(
         .stSelectbox > div > div {font-size: 0.9rem !important;}
         .stSlider > div {font-size: 0.9rem !important;}
         /* Hacer gráficos más pequeños en móvil */
-        .js-plotly-plot {height: 300px !important;}
+        .js-plotly-plot {height: 250px !important; width: 100% !important;}
+        .plotly-graph-div {height: 250px !important;}
         /* Reducir padding en columnas */
         .css-1r6slb0 {padding: 0.25rem !important;}
         /* Texto más pequeño en tablas */
         .stDataFrame table {font-size: 0.8rem !important;}
         /* Sidebar más compacto */
         .css-1d391kg {padding: 1rem 0.5rem !important;}
+        /* Forzar altura en contenedores de gráficos */
+        .element-container div[data-testid="stPlotlyChart"] {height: 250px !important;}
+        .element-container div[data-testid="stPlotlyChart"] > div {height: 250px !important;}
     }
     
     /* Tablets */
@@ -125,8 +129,8 @@ def _sparkline_from_series(s: pd.Series, title: str, color: str = "#2563eb"):
         fig.update_traces(line=dict(color=color, width=2), hovertemplate="%{y:.2f}<extra></extra>")
         fig.update_layout(
             title=title,
-            height=120,
-            margin=dict(l=10, r=10, t=30, b=10),
+            height=250 if st.session_state.get('mobile_view', False) else 400,
+            margin=dict(l=10, r=10, t=60, b=10),
             xaxis=dict(visible=False),
             yaxis=dict(visible=False),
         )
@@ -688,7 +692,8 @@ def main():
             color_continuous_scale=scale,
             text_auto=True,
         )
-        fig.update_layout(xaxis_title=rank_dimension.title(), yaxis_title=label)
+        mobile_height = 250 if st.session_state.get('mobile_view', False) else 400
+        fig.update_layout(xaxis_title=rank_dimension.title(), yaxis_title=label, height=mobile_height)
         fig.update_traces(hovertemplate="<b>%{x}</b><br>Valor: %{y:.2f}<extra></extra>", texttemplate="%{y:.2f}")
         fig.update_traces(textposition="outside")
         st.plotly_chart(fig)
@@ -723,7 +728,8 @@ def main():
             title=f"Promedio por Jornada ({'Score+HCP' if metric_col==col_pines_hcp else 'Score'})",
             color_discrete_sequence=COLORWAY,
         )
-        fig2.update_layout(xaxis_title="Jornada", yaxis_title="Promedio")
+        mobile_height = 250 if st.session_state.get('mobile_view', False) else 400
+        fig2.update_layout(xaxis_title="Jornada", yaxis_title="Promedio", height=mobile_height)
         fig2.update_traces(hovertemplate="Jornada %{x}<br>Promedio: %{y:.2f}<br>%{fullData.name}<extra></extra>")
         st.plotly_chart(fig2)
         with st.expander("Ver datos de tendencia", expanded=False):
@@ -847,7 +853,8 @@ def main():
                             markers=True,
                             color_discrete_sequence=COLORWAY[:2]
                         )
-                        fig_comp.update_layout(xaxis_title="Jornada", yaxis_title=f"Promedio ({comp_metric_name})")
+                        mobile_height = 250 if st.session_state.get('mobile_view', False) else 400
+                        fig_comp.update_layout(xaxis_title="Jornada", yaxis_title=f"Promedio ({comp_metric_name})", height=mobile_height)
                         st.plotly_chart(fig_comp)
         else:
             st.info("Se necesitan al menos 2 jugadores para comparar")
