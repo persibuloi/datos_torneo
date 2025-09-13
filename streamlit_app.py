@@ -518,8 +518,8 @@ def main():
         filtered[col_pines_hcp] = pines_hcp_series
         # Mostrar métricas de handicap en columnas disponibles
         h_cols = st.columns(2)
-        kpi_card("Promedio con handicap", f"{pines_hcp_series.mean():,.2f}", cols=h_cols[0])
-        kpi_card("Mejor con handicap", f"{pines_hcp_series.max():,.2f}", cols=h_cols[1])
+        kpi_card("Promedio con handicap", f"{pines_hcp_series.mean():,.2f}", h_cols[0])
+        kpi_card("Mejor con handicap", f"{pines_hcp_series.max():,.2f}", h_cols[1])
         # Toggle solo si existe handicap
         with st.sidebar:
             use_hcp = st.toggle("Usar Handicap (global)", value=False, help="Aplica Handicap a estadísticas, rankings y tendencias por jugador/equipo.")
@@ -843,17 +843,17 @@ def main():
                     comp_metrics = st.columns(4)
                 if st.session_state.get('mobile_view', False):
                     with comp_metrics[0]:
-                        st.metric(f"{j1} - Promedio", f"{data1.mean():.2f}")
-                        st.metric(f"{j2} - Promedio", f"{data2.mean():.2f}")
+                        st.markdown(f"**{j1} - Prom**: {data1.mean():.2f}")
+                        st.markdown(f"**{j2} - Prom**: {data2.mean():.2f}")
                     with comp_metrics[1]:
-                        st.metric(f"{j1} - Mejor", f"{data1.max():.2f}")
-                        st.metric(f"{j2} - Mejor", f"{data2.max():.2f}")
+                        st.markdown(f"**{j1} - Mejor**: {data1.max():.2f}")
+                        st.markdown(f"**{j2} - Mejor**: {data2.max():.2f}")
                     with comp_metrics2[0]:
-                        st.metric(f"{j1} - Juegos", f"{len(data1)}")
-                        st.metric(f"{j2} - Juegos", f"{len(data2)}")
+                        st.markdown(f"**{j1} - Juegos**: {len(data1)}")
+                        st.markdown(f"**{j2} - Juegos**: {len(data2)}")
                     with comp_metrics2[1]:
-                        st.metric(f"{j1} - ≥200", f"{(data1 >= 200).sum()}")
-                        st.metric(f"{j2} - ≥200", f"{(data2 >= 200).sum()}")
+                        st.markdown(f"**{j1} - ≥200**: {(data1 >= 200).sum()}")
+                        st.markdown(f"**{j2} - ≥200**: {(data2 >= 200).sum()}")
                 else:
                     with comp_metrics[0]:
                         st.metric(f"{j1} - Promedio", f"{data1.mean():.2f}")
