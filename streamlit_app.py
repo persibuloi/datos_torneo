@@ -20,7 +20,7 @@ COLORWAY = colors.qualitative.Vivid
 st.set_page_config(
     page_title="Analítica de Bowling 2025",
     page_icon="🎳",
-    layout="wide",
+    layout="centered",
 )
 
 # CSS sutil para mejorar apariencia
@@ -28,13 +28,39 @@ st.markdown(
     """
     <style>
     /* Contenedor principal más aireado */
-    .block-container {padding-top: 2rem; padding-bottom: 2rem;}
+    .block-container {padding-top: 1rem; padding-bottom: 1rem; padding-left: 1rem; padding-right: 1rem;}
     /* Subheaders con separación */
-    h2 {margin-top: 0.25rem;}
+    h2 {margin-top: 0.25rem; font-size: 1.2rem !important;}
+    h1 {font-size: 1.5rem !important;}
     /* DataFrame con bordes suaves */
     .stDataFrame {border-radius: 10px; overflow: hidden;}
     /* Separadores más visibles */
-    hr {margin: 2.5rem 0;}
+    hr {margin: 1.5rem 0;}
+    
+    /* Responsive design para móviles */
+    @media (max-width: 768px) {
+        .block-container {padding: 0.5rem !important;}
+        h1 {font-size: 1.3rem !important; text-align: center;}
+        h2 {font-size: 1.1rem !important;}
+        .stMetric > div {font-size: 0.8rem !important;}
+        .stSelectbox > div > div {font-size: 0.9rem !important;}
+        .stSlider > div {font-size: 0.9rem !important;}
+        /* Hacer gráficos más pequeños en móvil */
+        .js-plotly-plot {height: 300px !important;}
+        /* Reducir padding en columnas */
+        .css-1r6slb0 {padding: 0.25rem !important;}
+        /* Texto más pequeño en tablas */
+        .stDataFrame table {font-size: 0.8rem !important;}
+        /* Sidebar más compacto */
+        .css-1d391kg {padding: 1rem 0.5rem !important;}
+    }
+    
+    /* Tablets */
+    @media (max-width: 1024px) and (min-width: 769px) {
+        .block-container {padding: 1rem !important;}
+        h1 {font-size: 1.4rem !important;}
+        .js-plotly-plot {height: 350px !important;}
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -313,6 +339,10 @@ def main():
 
     # Sidebar minimal (sin selección de archivo)
     with st.sidebar:
+        # Detectar dispositivo móvil
+        mobile_detect = st.checkbox("Vista móvil", value=False, help="Activa para optimizar en celulares")
+        st.session_state['mobile_view'] = mobile_detect
+        
         theme = st.selectbox("Tema de gráficos", options=["Claro", "Oscuro"], index=0)
         palette = st.selectbox("Paleta", options=["Vivid", "Pastel", "Bold", "D3", "Dark24"], index=0)
         use_hcp = False
@@ -428,9 +458,12 @@ def main():
             pass
 
     st.divider()
-    # KPIs
-    st.subheader("📌 Indicadores Clave (KPI)")
-    c1, c2, c3, c4, c5 = st.columns(5)
+    # KPIs principales - adaptable a móvil
+    if st.session_state.get('mobile_view', False):
+        c1, c2 = st.columns(2)
+        c3, c4 = st.columns(2)
+    else:
+        c1, c2, c3, c4 = st.columns(4)
 
     total_rows = len(filtered)
     kpi_card("Registros", f"{total_rows:,}", "Filas después de filtros", c1)
@@ -465,9 +498,9 @@ def main():
         kpi_card("Jugadores únicos", "—", cols=c4)
 
     if col_equipo and col_equipo in filtered.columns:
-        kpi_card("Equipos únicos", f"{filtered[col_equipo].nunique():,}", cols=c5)
+        kpi_card("Equipos únicos", f"{filtered[col_equipo].nunique():,}", cols=c3)
     else:
-        kpi_card("Equipos únicos", "—", cols=c5)
+        kpi_card("Equipos únicos", "—", cols=c3)
 
     # KPIs adicionales: juegos altos (>=200/225/250) según métrica activa
     if col_score and col_score in filtered.columns:
@@ -483,13 +516,22 @@ def main():
         
         # Percentiles y estadísticas avanzadas
         st.subheader("📊 Estadísticas Avanzadas")
-        p_cols = st.columns(4)
+        # Layout adaptable para móviles
+        p_cols = st.columns([1,1,1,1] if not st.session_state.get('mobile_view', False) else [1,1])
+        if st.session_state.get('mobile_view', False):
+            p_cols2 = st.columns([1,1])
         p25, p50, p75, p90 = base_vals.quantile([0.25, 0.50, 0.75, 0.90])
         std_val = base_vals.std()
-        kpi_card("P25", f"{p25:.2f}", cols=p_cols[0])
-        kpi_card("P50 (Mediana)", f"{p50:.2f}", cols=p_cols[1])
-        kpi_card("P75", f"{p75:.2f}", cols=p_cols[2])
-        kpi_card("P90", f"{p90:.2f}", cols=p_cols[3])
+        if st.session_state.get('mobile_view', False):
+            kpi_card("P25", f"{p25:.2f}", cols=p_cols[0])
+            kpi_card("P50 (Mediana)", f"{p50:.2f}", cols=p_cols[1])
+            kpi_card("P75", f"{p75:.2f}", cols=p_cols2[0])
+            kpi_card("P90", f"{p90:.2f}", cols=p_cols2[1])
+        else:
+            kpi_card("P25", f"{p25:.2f}", cols=p_cols[0])
+            kpi_card("P50 (Mediana)", f"{p50:.2f}", cols=p_cols[1])
+            kpi_card("P75", f"{p75:.2f}", cols=p_cols[2])
+            kpi_card("P90", f"{p90:.2f}", cols=p_cols[3])
         
         # Desviación estándar y outliers
         iqr = p75 - p25
@@ -543,11 +585,16 @@ def main():
     for txt in insights:
         st.markdown(f"- {txt}")
 
-    # Destacados con mini-gráficos
+    # Destacados con mini-gráficos - layout móvil
     metric_col = col_pines_hcp if (use_hcp and col_pines_hcp in filtered.columns) else col_score
-    st.subheader("🌟 Destacados")
+    st.subheader("⭐ Destacados")
+    if st.session_state.get('mobile_view', False):
+        d1 = st.columns(1)[0]
+        d2 = st.columns(1)[0] 
+        d3 = st.columns(1)[0]
+    else:
+        d1, d2, d3 = st.columns(3)
     h = compute_highlights(filtered, col_jugador=col_jugador, col_jornada=col_jornada, metric_col=metric_col)
-    d1, d2, d3 = st.columns(3)
     with d1:
         st.markdown("**🏆 Mejor promedio**")
         if h["best_avg_player"] is not None:
@@ -744,19 +791,38 @@ def main():
                 data1 = filtered[filtered[col_jugador] == j1][comp_metric_col].astype(float)
                 data2 = filtered[filtered[col_jugador] == j2][comp_metric_col].astype(float)
                 
-                comp_metrics = st.columns(4)
-                with comp_metrics[0]:
-                    st.metric(f"{j1} - Promedio", f"{data1.mean():.2f}")
-                    st.metric(f"{j2} - Promedio", f"{data2.mean():.2f}")
-                with comp_metrics[1]:
-                    st.metric(f"{j1} - Mejor", f"{data1.max():.2f}")
-                    st.metric(f"{j2} - Mejor", f"{data2.max():.2f}")
-                with comp_metrics[2]:
-                    st.metric(f"{j1} - Juegos", f"{len(data1)}")
-                    st.metric(f"{j2} - Juegos", f"{len(data2)}")
-                with comp_metrics[3]:
-                    st.metric(f"{j1} - ≥200", f"{(data1 >= 200).sum()}")
-                    st.metric(f"{j2} - ≥200", f"{(data2 >= 200).sum()}")
+                # Layout adaptable para comparativas
+                if st.session_state.get('mobile_view', False):
+                    comp_metrics = st.columns(2)
+                    comp_metrics2 = st.columns(2)
+                else:
+                    comp_metrics = st.columns(4)
+                if st.session_state.get('mobile_view', False):
+                    with comp_metrics[0]:
+                        st.metric(f"{j1} - Promedio", f"{data1.mean():.2f}")
+                        st.metric(f"{j2} - Promedio", f"{data2.mean():.2f}")
+                    with comp_metrics[1]:
+                        st.metric(f"{j1} - Mejor", f"{data1.max():.2f}")
+                        st.metric(f"{j2} - Mejor", f"{data2.max():.2f}")
+                    with comp_metrics2[0]:
+                        st.metric(f"{j1} - Juegos", f"{len(data1)}")
+                        st.metric(f"{j2} - Juegos", f"{len(data2)}")
+                    with comp_metrics2[1]:
+                        st.metric(f"{j1} - ≥200", f"{(data1 >= 200).sum()}")
+                        st.metric(f"{j2} - ≥200", f"{(data2 >= 200).sum()}")
+                else:
+                    with comp_metrics[0]:
+                        st.metric(f"{j1} - Promedio", f"{data1.mean():.2f}")
+                        st.metric(f"{j2} - Promedio", f"{data2.mean():.2f}")
+                    with comp_metrics[1]:
+                        st.metric(f"{j1} - Mejor", f"{data1.max():.2f}")
+                        st.metric(f"{j2} - Mejor", f"{data2.max():.2f}")
+                    with comp_metrics[2]:
+                        st.metric(f"{j1} - Juegos", f"{len(data1)}")
+                        st.metric(f"{j2} - Juegos", f"{len(data2)}")
+                    with comp_metrics[3]:
+                        st.metric(f"{j1} - ≥200", f"{(data1 >= 200).sum()}")
+                        st.metric(f"{j2} - ≥200", f"{(data2 >= 200).sum()}")
                 
                 # Gráfico comparativo
                 if col_jornada and col_jornada in filtered.columns:
