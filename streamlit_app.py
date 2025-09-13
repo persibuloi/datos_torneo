@@ -34,19 +34,13 @@ st.markdown(
     /* DataFrame con bordes suaves */
     .stDataFrame {border-radius: 10px; overflow: hidden;}
     /* Separadores más visibles */
-    hr {margin: 1.5rem 0;}
+    hr {margin: 2.5rem 0;}
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-DEFAULT_FILE = os.path.join(
-    os.path.expanduser("~"),
-    "OneDrive - Sevasa",
-    "Escritorio",
-    "TORNEO APP",
-    "JuegosMerge2025.xlsx",
-)
+DEFAULT_FILE = os.path.join(os.path.dirname(__file__), "JuegosMerge2025.xlsx")
 
 
 @st.cache_data(show_spinner=False)
